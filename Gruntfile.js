@@ -1,7 +1,7 @@
 /*
  * grunt-dev-update
  *
- * Copyright (c) 2014 Gilad Peleg
+ * Copyright (c) Gilad Peleg
  * Licensed under the MIT license.
  */
 
