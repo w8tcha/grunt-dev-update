@@ -1,8 +1,8 @@
 # [grunt](http://gruntjs.com/)-dev-update
 > Update your devDependencies and dependencies automatically with a grunt task
 
-[![NPM Version](http://img.shields.io/npm/v/grunt-dev-update.svg?style=flat)](https://npmjs.org/package/grunt-dev-update)
-[![NPM Downloads](http://img.shields.io/npm/dm/grunt-dev-update.svg?style=flat)](https://npmjs.org/package/grunt-dev-update)
+[![NPM Version](http://img.shields.io/npm/v/@w8tcha/grunt-dev-update.svg?style=flat)](https://npmjs.org/package/@w8tcha/grunt-dev-update)
+[![NPM Downloads](http://img.shields.io/npm/dm/@w8tcha/grunt-dev-update.svg?style=flat)](https://npmjs.org/package/@w8tcha/grunt-dev-update)
 [![Built with Grunt](http://img.shields.io/badge/BUILT_WITH-GRUNT-orange.svg?style=flat)](http://gruntjs.com/)
 
 ## Getting Started
@@ -14,13 +14,13 @@ as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) 
 Once you're familiar with that process, you may install this plugin with this command:
 
 ```bash
-npm install --save-dev grunt-dev-update
+npm install --save-dev @w8tcha/grunt-dev-update
 ```
 
 Once the plugin has been installed, it may be enabled inside your Gruntfile with this line of JavaScript:
 
 ```js
-grunt.loadNpmTasks('grunt-dev-update');
+grunt.loadNpmTasks('@w8tcha/grunt-dev-update');
 ```
 
 The best way to load tasks is probably using [load-grunt-tasks](https://github.com/sindresorhus/load-grunt-tasks)
