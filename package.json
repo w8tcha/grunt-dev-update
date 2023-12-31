@@ -2,7 +2,6 @@
   "name": "@w8tcha/grunt-dev-update",
   "version": "2.3.1",
   "description": "Automate the updating of your package.json packages with a grunt task",
-  
   "repository": {
     "type": "git",
     "url": "https://github.com/w8tcha/grunt-dev-update"
@@ -31,9 +30,9 @@
   "dependencies": {
     "async-each-series": "^1.1.0",
     "findup-sync": "^5.0.0",
-    "inquirer": "^8.0.0",
+    "inquirer": "^9.2.12",
     "lodash": "^4.17.21",
-    "npm-package-arg": "^10.1.0",
+    "npm-package-arg": "^11.0.1",
     "semver": "^7.5.4"
   },
   "devDependencies": {

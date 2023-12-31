@@ -35,7 +35,7 @@ module.exports = function (grunt) {
             main: {
                 options: {
                     //just report
-                    updateType: 'prompt',
+                    updateType: 'force',
                     //stick to semver matching in packages
                     semver: false,
                     //don't report ok packages by default
