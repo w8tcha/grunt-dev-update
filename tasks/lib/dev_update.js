@@ -58,24 +58,25 @@ var prodDeps = {
     installType: '--save'
 };
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
     var exports = {
-        options: {},
+        options: {}
     };
 
-    var getPkgJsonPath = function () {
+    var getPkgJsonPath = function() {
         //how is package.json located
         if (exports.options.packageJson) {
-            grunt.verbose.writelns('Using custom option for package.json: ' + exports.options.packageJson);
+            grunt.verbose.writelns(`Using custom option for package.json: ${exports.options.packageJson}`);
             return exports.options.packageJson;
         } else {
-            return findup('package.json', {
-                cwd: process.cwd()
-            });
+            return findup('package.json',
+                {
+                    cwd: process.cwd()
+                });
         }
     };
 
-    var getPackageJson = function (from) {
+    var getPackageJson = function(from) {
         var pkg;
         try {
             //load package json
@@ -91,54 +92,59 @@ module.exports = function (grunt) {
     /**
      * Get the dev dependencies packages to update from package.json
      */
-    var getPackageNames = function (packages) {
+    var getPackageNames = function(packages) {
         var pkg = getPackageJson(getPkgJsonPath());
         var mappedPkgs = [];
-        forEach(packages, function (dep) {
-            //get packages by type from package.json
-            dep.deps = pkg[dep.type];
-            grunt.log.writeln('Found ' + keys(dep.deps).length + ' ' + dep.type.blue + ' to check for latest version');
-            forEach(dep.deps, function (item, key) {
-                var parsed = npa(key + '@' + item);
-                grunt.verbose.writelns('Parsed package:', key, parsed);
-                if (!includes(['version', 'tag', 'range'], parsed.type)) {
-                    grunt.verbose.writelns(key.red + ' - doesn\'t seem local to npm. Skipping...');
-                    return null;
-                }
-                mappedPkgs.push({
-                    name: key,
-                    installType: dep.installType,
-                    type: dep.type
-                });
+        forEach(packages,
+            function(dep) {
+                //get packages by type from package.json
+                dep.deps = pkg[dep.type];
+                grunt.log.writeln(`Found ${keys(dep.deps).length} ${dep.type.blue} to check for latest version`);
+                forEach(dep.deps,
+                    function(item, key) {
+                        const parsed = npa(key + '@' + item);
+                        grunt.verbose.writelns('Parsed package:', key, parsed);
+                        if (!includes(['version', 'tag', 'range'], parsed.type)) {
+                            grunt.verbose.writelns(key.red + ' - doesn\'t seem local to npm. Skipping...');
+                            return null;
+                        }
+                        mappedPkgs.push({
+                            name: key,
+                            installType: dep.installType,
+                            type: dep.type
+                        });
+                    });
             });
-        });
         return mappedPkgs;
     };
 
-    var getOutdatedPkgs = function (packages, done) {
-        var pkgNames = map(packages, 'name');
+    var getOutdatedPkgs = function(packages, done) {
+        const pkgNames = map(packages, 'name');
         spawnOptions.args = getSpawnArguments('outdated').concat(pkgNames);
-        spawnOptions.opts = {};
-        grunt.util.spawn(spawnOptions, function (error, result) {
-            if (error && !result) {
-                grunt.verbose.writelns(error);
-                grunt.fatal('Task failed due to ' + error);
-                return done(error);
-            }
-            if (!result || !result.stdout) {
-                return done();
-            }
-            var jsonResults;
-            try {
-                jsonResults = JSON.parse(result.stdout);
-            } catch (e) {
-                grunt.fatal('Task failed with JSON.parse due to ' + e);
-            }
-            return done(null, jsonResults);
-        });
+        spawnOptions.opts = {
+            shell: true
+        };
+        grunt.util.spawn(spawnOptions,
+            function(error, result) {
+                if (error && !result) {
+                    grunt.verbose.writelns(error);
+                    grunt.fatal(`Task failed due to ${error}`);
+                    return done(error);
+                }
+                if (!result || !result.stdout) {
+                    return done();
+                }
+                var jsonResults;
+                try {
+                    jsonResults = JSON.parse(result.stdout);
+                } catch (e) {
+                    grunt.fatal(`Task failed with JSON.parse due to ${e}`);
+                }
+                return done(null, jsonResults);
+            });
     };
 
-    var processByUpdateType = function (pkg, specs, done) {
+    var processByUpdateType = function(pkg, specs, done) {
         /** Update phase **/
         grunt.log.subhead('Package name\t:', pkg.name);
         grunt.log.writelns('Package type\t:', pkg.type);
@@ -146,14 +152,14 @@ module.exports = function (grunt) {
         grunt.log.writelns('Wanted version\t:', specs.wanted);
         grunt.log.writelns('Latest version\t:', specs.latest.red);
 
-        var updateType = exports.options.updateType;
-        var onlyReportPkg = shouldOnlyReport(exports.options.reportOnlyPkgs, pkg.name);
+        const updateType = exports.options.updateType;
+        const onlyReportPkg = shouldOnlyReport(exports.options.reportOnlyPkgs, pkg.name);
         if (exports.options.semver && specs.current === specs.wanted) {
             grunt.log.ok('Package is up to date');
             return done();
         }
         if ((updateType === 'fail') && (!onlyReportPkg)) {
-            grunt.warn('Found an outdated package: ' + String(pkg.name).underline + '.', 3);
+            grunt.warn(`Found an outdated package: ${String(pkg.name).underline}.`, 3);
         }
         if (updateType === 'report') {
             return done();
@@ -173,43 +179,47 @@ module.exports = function (grunt) {
             return updatePackage(spawnArgs, done);
         }
         //assume updateType === 'prompt'
-        var msg = 'update using [npm ' + spawnArgs.join(' ') + ']';
+        const msg = `update using [npm ${spawnArgs.join(' ')}]`;
         return require('inquirer').prompt({
-            name: 'confirm',
-            message: msg,
-            default: false,
-            type: 'confirm'
-        }, function (result) {
-            if (!result.confirm) {
-                return done();
-            }
-            //user accepted update
-            updatePackage(spawnArgs, done);
-        });
+                name: 'confirm',
+                message: msg,
+                default: false,
+                type: 'confirm'
+            },
+            function(result) {
+                if (!result.confirm) {
+                    return done();
+                }
+                //user accepted update
+                updatePackage(spawnArgs, done);
+            });
     };
 
-    var updatePackage = function (spawnArgs, done) {
+    var updatePackage = function(spawnArgs, done) {
         //assign args
         spawnOptions.args = spawnArgs;
         spawnOptions.opts = {
+            shell: true,
             stdio: 'inherit'
         };
-        grunt.util.spawn(spawnOptions, function (error) {
-            if (error) {
-                grunt.verbose.writelns(error);
-                grunt.log.writelns('Error while running ' + spawnArgs);
-            }
-            return done();
-        });
+        grunt.util.spawn(spawnOptions,
+            function(error) {
+                if (error) {
+                    grunt.verbose.writelns(error);
+                    grunt.log.writelns(`Error while running ${spawnArgs}`);
+                }
+                return done();
+            });
     };
 
-    exports.runTask = function (options, done) {
+    exports.runTask = function(options, done) {
         exports.options = options;
 
         //get only the kind of packages user wants
-        var packageTypes = filter([devDeps, prodDeps], function (pkgType) {
-            return options.packages[pkgType.type];
-        });
+        const packageTypes = filter([devDeps, prodDeps],
+            function(pkgType) {
+                return options.packages[pkgType.type];
+            });
 
         if (!packageTypes || !packageTypes.length) {
             return done();
@@ -217,28 +227,34 @@ module.exports = function (grunt) {
 
         //get the package names
         var packages = getPackageNames(packageTypes);
+
         //no packages to check
         if (!packages || !packages.length) {
             return done();
         }
 
-        getOutdatedPkgs(packages, function (err, result) {
-            if (!result) {
-                grunt.log.oklns('All packages are up to date');
-                return done();
-            }
-            asyncEach(keys(result), function (pkgName, cb) {
-                var pkg = find(packages, {
-                    name: pkgName
-                });
-                var specs = result[pkgName];
-                if (!semver.valid(specs.wanted) || !semver.valid(specs.latest)) {
-                    grunt.verbose.writelns('Package ' + pkgName.blue + ' isn\'t from NPM, currently not handling those. Skipping...');
-                    return cb();
+        getOutdatedPkgs(packages,
+            function(err, result) {
+                if (!result) {
+                    grunt.log.oklns('All packages are up to date');
+                    return done();
                 }
-                processByUpdateType(pkg, specs, cb);
-            }, done);
-        });
+                asyncEach(keys(result),
+                    function(pkgName, cb) {
+                        const pkg = find(packages,
+                            {
+                                name: pkgName
+                            });
+                        const specs = result[pkgName];
+                        if (!semver.valid(specs.wanted) || !semver.valid(specs.latest)) {
+                            grunt.verbose.writelns(
+                                `Package ${pkgName.blue} isn't from NPM, currently not handling those. Skipping...`);
+                            return cb();
+                        }
+                        processByUpdateType(pkg, specs, cb);
+                    },
+                    done);
+            });
     };
 
     return exports;

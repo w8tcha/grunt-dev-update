@@ -5,7 +5,7 @@
  * Licensed under the MIT license.
  */
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
     // Project configuration.
     grunt.initConfig({
@@ -46,7 +46,7 @@ module.exports = function (grunt) {
                         devDependencies: true,
                         dependencies: true
                     },
-                    //by deafult - use matchdep default findup to locate package.json
+                    //by default - use matchdep default findup to locate package.json
                     packageJson: null
                 }
             }
