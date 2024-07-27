@@ -15,6 +15,7 @@ var keys = require('lodash/keys');
 var map = require('lodash/map');
 var npa = require('npm-package-arg');
 var semver = require('semver');
+const spawn = require('cross-spawn');
 
 //default spawn options
 var spawnOptions = {
@@ -118,30 +119,29 @@ module.exports = function(grunt) {
         return mappedPkgs;
     };
 
-    var getOutdatedPkgs = function(packages, done) {
-        const pkgNames = map(packages, 'name');
+    var getOutdatedPkgs = function (packages, done) {
+       const pkgNames = map(packages, 'name');
         spawnOptions.args = getSpawnArguments('outdated').concat(pkgNames);
         spawnOptions.opts = {
-            shell: true
         };
-        grunt.util.spawn(spawnOptions,
-            function(error, result) {
-                if (error && !result) {
-                    grunt.verbose.writelns(error);
-                    grunt.fatal(`Task failed due to ${error}`);
-                    return done(error);
-                }
-                if (!result || !result.stdout) {
-                    return done();
-                }
-                var jsonResults;
-                try {
-                    jsonResults = JSON.parse(result.stdout);
-                } catch (e) {
-                    grunt.fatal(`Task failed with JSON.parse due to ${e}`);
-                }
-                return done(null, jsonResults);
-            });
+
+        const { error, stdout} = spawn.sync('npm', spawnOptions.args, spawnOptions.opts);
+
+        if (error && !result) {
+            grunt.verbose.writelns(error);
+            grunt.fatal(`Task failed due to ${error}`);
+            return done(error);
+        }
+        if (!stdout) {
+            return done();
+        }
+        var jsonResults;
+        try {
+            jsonResults = JSON.parse(stdout);
+        } catch (e) {
+            grunt.fatal(`Task failed with JSON.parse due to ${e}`);
+        }
+        return done(null, jsonResults);
     };
 
     var processByUpdateType = function(pkg, specs, done) {
@@ -199,17 +199,16 @@ module.exports = function(grunt) {
         //assign args
         spawnOptions.args = spawnArgs;
         spawnOptions.opts = {
-            shell: true,
             stdio: 'inherit'
         };
-        grunt.util.spawn(spawnOptions,
-            function(error) {
-                if (error) {
-                    grunt.verbose.writelns(error);
-                    grunt.log.writelns(`Error while running ${spawnArgs}`);
-                }
-                return done();
-            });
+
+        const { error, stdout } = spawn.sync('npm', spawnOptions.args, spawnOptions.opts);
+
+        if (error) {
+            grunt.verbose.writelns(error);
+            grunt.log.writelns(`Error while running ${spawnArgs}`);
+        }
+        return done();
     };
 
     exports.runTask = function(options, done) {
@@ -234,13 +233,13 @@ module.exports = function(grunt) {
         }
 
         getOutdatedPkgs(packages,
-            function(err, result) {
+            function (err, result) {
                 if (!result) {
                     grunt.log.oklns('All packages are up to date');
                     return done();
                 }
                 asyncEach(keys(result),
-                    function(pkgName, cb) {
+                    function (pkgName, cb) {
                         const pkg = find(packages,
                             {
                                 name: pkgName
