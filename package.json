@@ -28,13 +28,13 @@
     "updates"
   ],
   "dependencies": {
-    "@inquirer/prompts": "^7.2.1",
+    "@inquirer/prompts": "^7.6.0",
     "async-each-series": "^1.1.0",
-    "cross-spawn": "^7.0.3",
+    "cross-spawn": "^7.0.6",
     "findup-sync": "^5.0.0",
     "lodash": "^4.17.21",
-    "npm-package-arg": "^12.0.1",
-    "semver": "^7.6.3"
+    "npm-package-arg": "^12.0.2",
+    "semver": "^7.7.2"
   },
   "devDependencies": {
     "grunt": "^1.6.1",
