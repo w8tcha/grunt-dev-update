@@ -33,7 +33,7 @@
     "cross-spawn": "^7.0.6",
     "findup-sync": "^5.0.0",
     "lodash": "^4.17.21",
-    "npm-package-arg": "^12.0.2",
+    "npm-package-arg": "^13.0.0",
     "semver": "^7.7.2"
   },
   "devDependencies": {
