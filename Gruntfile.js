@@ -6,6 +6,7 @@
  */
 
 module.exports = function(grunt) {
+	require('@lodder/time-grunt')(grunt);
 
     // Project configuration.
     grunt.initConfig({
